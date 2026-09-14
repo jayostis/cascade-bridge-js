@@ -37,6 +37,14 @@ describe("the lift", () => {
     expect(slot(g, root, 2)).toBeUndefined();
   });
 
+  it("drops only XML whitespace: a no-break space is a text child, alone or beside spaces", () => {
+    const g = graph(liftDocument("<d><a> </a><b>   </b><c>\n</c></d>").skeleton);
+    const root = rootOf(g);
+    expect(slot(g, slot(g, root, 1)!, 1)).toEqual(N3.DataFactory.literal(" "));
+    expect(slot(g, slot(g, root, 2)!, 1)).toEqual(N3.DataFactory.literal("   "));
+    expect(slot(g, slot(g, root, 3)!, 1)).toBeUndefined();
+  });
+
   it("keeps other text verbatim, and merges CDATA with adjacent text", () => {
     const g = graph(liftDocument(`<a> x <![CDATA[<y>]]>z</a>`).skeleton);
     expect(slot(g, rootOf(g), 1)).toEqual(N3.DataFactory.literal(" x <y>z"));

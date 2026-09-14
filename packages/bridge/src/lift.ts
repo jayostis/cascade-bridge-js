@@ -62,9 +62,10 @@ export function liftDocument(xml: string, unit?: string): LiftedDocument {
   let next = 0;
   let text = "";
 
+  // Whitespace is XML's S production, not Unicode's: a no-break space is text.
   const flush = () => {
     const top = stack[stack.length - 1];
-    if (top && text.trim() !== "") {
+    if (top && /[^ \t\r\n]/.test(text)) {
       top.members += 1;
       (top.kind === "unit" ? current! : skeleton).push(`${top.id} <${RDF}_${top.members}> ${literal(text)} .`);
     }
