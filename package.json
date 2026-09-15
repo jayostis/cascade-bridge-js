@@ -1,0 +1,24 @@
+{
+  "name": "cascade-bridge-js",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/bridge",
+    "packages/bridge-cli"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "cascade-bridge": "node packages/bridge-cli/src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "devDependencies": {
+    "@types/jsonld": "1.5.15",
+    "@types/n3": "1.26.4",
+    "@types/node": "24.3.0",
+    "typescript": "5.9.2",
+    "vitest": "5.0.0"
+  }
+}

@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: tests and type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+
+  spec:
+    name: the specification's lift vectors and synthetic adapter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # A tag, never a branch: a change to the specification must not change a
+      # green run here. Moving to a later release is a commit of its own.
+      - uses: actions/checkout@v4
+        with:
+          repository: jayostis/cascade-bridge-spec
+          ref: v0.4.0
+          path: spec
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run packages/bridge/test/spec.test.ts
+        env:
+          CASCADE_BRIDGE_SPEC: spec
+      - run: npm run cascade-bridge -- test spec/fixtures/synthetic-adapter

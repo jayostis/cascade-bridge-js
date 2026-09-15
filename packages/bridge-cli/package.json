@@ -1,0 +1,14 @@
+{
+  "name": "@the-cascade-protocol/bridge-cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The cascade-bridge command: runs an adapter's test manifest and reports in EARL.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "cascade-bridge": "./src/cli.ts"
+  },
+  "dependencies": {
+    "@the-cascade-protocol/bridge": "0.0.0"
+  }
+}

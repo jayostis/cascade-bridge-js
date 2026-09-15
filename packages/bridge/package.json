@@ -1,0 +1,19 @@
+{
+  "name": "@the-cascade-protocol/bridge",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cascade Bridge for JavaScript: runs Cascade Bridge Adapters under the sparql-1.1 profile.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/resolver.ts"
+  },
+  "dependencies": {
+    "jsonld": "9.0.0",
+    "n3": "2.7.12",
+    "oxigraph": "0.5.11",
+    "rdf-canonize": "5.0.0",
+    "saxes": "6.0.0"
+  }
+}
