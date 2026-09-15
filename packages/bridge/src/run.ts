@@ -59,7 +59,8 @@ function toFinding(row: Map<string, { termType: string; value: string }>, query:
   const f = {} as Finding;
   for (const key of FINDING_KEYS) {
     const term = row.get(key);
-    if (!term || term.termType !== "Literal") throw new Error(`findings query ${query} left ?${key} unbound or not a literal`);
+    if (!term || (term.termType !== "Literal" && term.termType !== "NamedNode"))
+      throw new Error(`findings query ${query} left ?${key} unbound or bound to a term with no lexical form, such as a blank node`);
     f[key] = term.value;
   }
   return f;
