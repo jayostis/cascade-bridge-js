@@ -4,14 +4,18 @@ import * as N3 from "n3";
 import { type Adapter, MANIFEST, list, objects, value, values } from "./load.ts";
 import { BRIDGE, RDF_TYPE, canonicalLines, decode, parseTurtle } from "./rdf.ts";
 import type { Resolver } from "./resolver-types.ts";
-import { type Finding, convert, prepare } from "./run.ts";
+import { type Finding, type Prepared, convert, prepare } from "./run.ts";
 
 export const OFFERED_PROFILES = [BRIDGE + "sparql-1.1"];
 
 export type Outcome = "passed" | "failed" | "cantTell" | "untested" | "inapplicable";
 
 export interface EntryResult {
-  entry: string;
+  /**
+   * The entry as the manifest lists it. Only an IRI names a test outside the
+   * manifest; a blank node or a literal does not.
+   */
+  entry: N3.Term;
   name: string;
   type: string;
   outcome: Outcome;
@@ -63,11 +67,13 @@ export async function runManifest(adapter: Adapter, resolver: Resolver, options:
   const manifestIgnore = values(g, adapter.manifest, BRIDGE + "ignorePredicate");
 
   const unoffered = adapter.profilesRequired.filter((p) => !OFFERED_PROFILES.includes(p));
-  let setup: Awaited<ReturnType<typeof prepare>> | Error;
-  try {
-    setup = unoffered.length ? new Error("unused") : await prepare(adapter, resolver);
-  } catch (e) {
-    setup = e as Error;
+  let setup: Prepared | Error | undefined;
+  if (!unoffered.length) {
+    try {
+      setup = await prepare(adapter, resolver);
+    } catch (e) {
+      setup = e as Error;
+    }
   }
 
   const results: EntryResult[] = [];
@@ -77,9 +83,9 @@ export async function runManifest(adapter: Adapter, resolver: Resolver, options:
     const type = Object.values(TYPES).find((t) => types.includes(t)) ?? types[0] ?? "";
     const name = value(g, entry, MANIFEST.name) ?? entry.value;
     const done = (outcome: Outcome, description: string) =>
-      results.push({ entry: entry.value, name, type, outcome, description, ms: performance.now() - start });
+      results.push({ entry, name, type, outcome, description, ms: performance.now() - start });
 
-    if (unoffered.length) {
+    if (!setup) {
       done("inapplicable", `the adapter requires ${unoffered.join(", ")}, which this Bridge does not offer`);
       continue;
     }

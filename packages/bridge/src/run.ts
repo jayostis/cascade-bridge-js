@@ -19,7 +19,7 @@ export interface Finding {
 const FINDING_KEYS = ["sourceField", "reason", "severity", "context"] as const;
 
 export interface Prepared {
-  unit?: string;
+  unit: string;
   mappings: { iri: string; text: string }[];
   findingsQueries: { iri: string; text: string }[];
   detect?: { iri: string; text: string };
@@ -42,12 +42,16 @@ async function text(resolver: Resolver, iri: string) {
 /** Read everything an adapter runs, once, before any document. */
 export async function prepare(adapter: Adapter, resolver: Resolver): Promise<Prepared> {
   if (adapter.mappings.length === 0) throw new Error("the adapter names no bridge:mapping");
+  // Without a unit nothing is split off, so no mapping would run and an empty
+  // result would pass for a conversion.
+  const unit = adapter.unit;
+  if (unit === undefined) throw new Error("the adapter names no bridge:unit");
   for (const t of adapter.tables) {
     const format = value(adapter.graph, t, SCHEMA + "encodingFormat");
     if (format !== "text/turtle") throw new Error(`table ${t} is ${format ?? "undeclared"}; this Bridge loads text/turtle tables`);
   }
   return {
-    unit: adapter.unit,
+    unit,
     mappings: await Promise.all(adapter.mappings.map((m) => text(resolver, m))),
     findingsQueries: await Promise.all(adapter.findingsQueries.map((f) => text(resolver, f))),
     detect: adapter.detectQuery ? await text(resolver, adapter.detectQuery) : undefined,

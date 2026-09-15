@@ -25,12 +25,18 @@ export function earlReport(results: EntryResult[], subject: ReportSubject, date 
   w.addQuad(s, n(DOAP + "release"), w.blank(n(DOAP + "revision"), l(subject.version)));
   const when = l(date.toISOString(), n(XSD + "dateTime"));
   for (const r of results) {
+    // An entry with no IRI has no name outside its manifest, so it is reported
+    // as an anonymous test carrying the entry's name: the report still holds
+    // one assertion per entry.
+    const test = r.entry.termType === "NamedNode"
+      ? n(r.entry.value)
+      : w.blank(n(DCT + "title"), l(r.name));
     w.addQuad(
       w.blank([
         { predicate: n(RDF_TYPE), object: n(EARL + "Assertion") },
         { predicate: n(EARL + "assertedBy"), object: s },
         { predicate: n(EARL + "subject"), object: s },
-        { predicate: n(EARL + "test"), object: n(r.entry) },
+        { predicate: n(EARL + "test"), object: test },
         { predicate: n(EARL + "mode"), object: n(EARL + "automatic") },
         {
           predicate: n(EARL + "result"),

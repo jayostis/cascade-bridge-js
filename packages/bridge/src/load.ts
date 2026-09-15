@@ -53,11 +53,18 @@ export function values(graph: N3.Store, subject: string | N3.Term, predicate: st
   return objects(graph, subject, predicate).map((t) => t.value);
 }
 
-/** The members of an RDF list, in order. */
+/**
+ * The members of an RDF list, in order. A list that comes back to a cell it
+ * has already passed is refused, since walking it would never end.
+ */
 export function list(graph: N3.Store, head: N3.Term | undefined): N3.Term[] {
   const out: N3.Term[] = [];
+  const passed = new Set<string>();
   let node = head;
   while (node && node.value !== RDF + "nil") {
+    const cell = `${node.termType} ${node.value}`;
+    if (passed.has(cell)) throw new Error(`the RDF list loops back on itself at ${node.value}`);
+    passed.add(cell);
     const first = objects(graph, node, RDF + "first")[0];
     if (first) out.push(first);
     node = objects(graph, node, RDF + "rest")[0];
