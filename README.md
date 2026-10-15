@@ -1,5 +1,10 @@
 # cascade-bridge-js
 
+> **Retired.** This repository is archived and does not move to the-cascade-protocol organization.
+> The Cascade Bridge in use is [cascade-bridge-rs](https://github.com/jayostis/cascade-bridge-rs),
+> the Rust Bridge, also built for WebAssembly, which runs in Node and in a browser.
+> This code stays here, read-only, for reference.
+
 **Cascade Bridge for JavaScript**: an implementation of the
 [Cascade Bridge Specification](https://github.com/jayostis/cascade-bridge-spec).
 It runs a Cascade Bridge Adapter, a data package for one source format, and
